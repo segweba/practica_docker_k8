@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aplicacion-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aplicacion-web
+  template:
+    metadata:
+      labels:
+        app: aplicacion-web
+    spec:
+      containers:
+      - name: aplicacion-web
+        image: segweba/aplicacion-web:v1
+        ports:
+        - containerPort: 7007
+        env:
+        - name: Entorno
+          value: Segweba
+        - name: Version
+          value: "1"
+        - name: Origen
+          valueFrom:
+            configMapKeyRef:
+              name: config-map
+              key: origen
+        - name: MONGO_USR
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secrets
+              key: db_usr
+        - name: MONGO_PWD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secrets
+              key: db_pwd

@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+  mongodb: 
+    image: mongo:4.0.7
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: testdb
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/db_usr
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_pwd
+    secrets:
+      - db_usr
+      - db_pwd
+    volumes:
+      - mongodb:/data/db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '500M'
+        reservations:
+          cpus: '0.3'
+          memory: '250M'
+
+  aplicacion-web:
+    image: aplicacion-web:v2
+    ports:
+      - "7007:7007"
+    depends_on:
+      - mongodb
+    environment:
+      Origen: docker
+      Entorno: Segweba
+      Version: "2"
+      MONGO_USR: /run/secrets/db_usr
+      MONGO_PWD: /run/secrets/db_pwd
+    secrets:
+      - db_usr
+      - db_pwd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '500M'
+        reservations:
+          cpus: '0.3'
+          memory: '250M'
+
+volumes:
+  mongodb:
+
+secrets:
+  db_usr:
+    file: ./db_usr.txt
+  db_pwd:
+    file: ./db_pwd.txt
